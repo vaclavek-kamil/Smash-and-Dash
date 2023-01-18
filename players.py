@@ -43,3 +43,6 @@ class Player (pygame.sprite.Sprite):
         #THIS IS HERE ONLY TO DEBUG THE HITBOX OF THE PLAYER
         #pygame.draw.rect(level.display_surface, (255,255,0), self.rect, 3)
         pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.colider, 3)
+
+    def update(self, level):
+        pass
