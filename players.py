@@ -1,5 +1,7 @@
 import pygame
+import math
 from settings import *
+
 
 class Player (pygame.sprite.Sprite):
     def __init__(self, pos, number, groups):
@@ -31,18 +33,70 @@ class Player (pygame.sprite.Sprite):
 
         #PLAYER DAMAGE
         self.DMG = 20
-        
+
+        #PLAYER SPEED (pixels per frame)
+        self.SPEED = 4
+
         #THE FACING DIRECTION (left, right, up, down)
         self.facing = 'left'
-        
+
+#####################################################################################################################################################################################################
 
     #CUSTOM DRAW FUNCTION
     def custom_draw(self, level):
+        #updating the rect position to the position of the colider before rendering
+        self.rect.center = self.colider.center
+
+        #so far, only blitting the idle surf, regardless of anything
         pygame.Surface.blit( level.display_surface, self.img_idle[self.NUMBER], self.rect)
         
         #THIS IS HERE ONLY TO DEBUG THE HITBOX OF THE PLAYER
         #pygame.draw.rect(level.display_surface, (255,255,0), self.rect, 3)
         pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.colider, 3)
 
+#####################################################################################################################################################################################################
+
+    #UPDATE FUNCTION, HANDLING INPUT AND PHYSICS
     def update(self, level):
-        pass
+
+        x_input = 0
+        y_input = 0
+
+        #getting the player movement input
+
+        #UP
+        if (level.pressed_keys[pygame.K_w] and self.NUMBER == 1) or (level.pressed_keys[pygame.K_UP] and self.NUMBER == 2):
+            y_input -= 1;
+        
+        #DOWN
+        if (level.pressed_keys[pygame.K_s] and self.NUMBER == 1) or (level.pressed_keys[pygame.K_DOWN] and self.NUMBER == 2):
+            y_input += 1;
+       
+        #LEFT
+        if (level.pressed_keys[pygame.K_a] and self.NUMBER == 1) or (level.pressed_keys[pygame.K_LEFT] and self.NUMBER == 2):
+            x_input -= 1;
+        
+        #RIGHT
+        if (level.pressed_keys[pygame.K_d] and self.NUMBER == 1) or (level.pressed_keys[pygame.K_RIGHT] and self.NUMBER == 2):
+            x_input += 1;
+
+        #diagonal movement
+        if y_input != 0 and x_input != 0:
+            diagonal = math.sqrt(self.SPEED*self.SPEED/2)
+            
+            x_input *= round(diagonal)
+            y_input *= round(diagonal)
+
+        #Multiplying the input by the player speed to turn it into a directional vector
+        else:
+            y_input *= self.SPEED
+            x_input *= self.SPEED
+
+            
+        #applying the directional vector onto the players position
+        self.colider.x += x_input
+        self.colider.y += y_input
+
+        #debugging
+        pygame.display.set_caption('x: ' + str(x_input) + '     y: ' + str(y_input) + '   ' + str(self.colider.x) + '   ' + str(self.colider.x))
+

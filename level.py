@@ -44,7 +44,7 @@ class Level:
         self.pressed_keys = pygame.key.get_pressed()
 
         #update the game objects
-        self.player_sprites.update()
+        self.player_sprites.update(self)
 
         #draw the game objects 
         self.floor_sprites.draw(self.display_surface)
