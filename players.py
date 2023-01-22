@@ -55,10 +55,7 @@ class Player (pygame.sprite.Sprite):
         pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.colider, 3)
 
 #####################################################################################################################################################################################################
-
-    #UPDATE FUNCTION, HANDLING INPUT AND PHYSICS
-    def update(self, level):
-
+    def movement(self, level):
         x_input = 0
         y_input = 0
 
@@ -97,6 +94,12 @@ class Player (pygame.sprite.Sprite):
         self.colider.x += x_input
         self.colider.y += y_input
 
+
+    #UPDATE FUNCTION, HANDLING INPUT AND PHYSICS
+    def update(self, level):
+
+        self.movement(level)
+
         #debugging
-        pygame.display.set_caption('x: ' + str(x_input) + '     y: ' + str(y_input) + '   ' + str(self.colider.x) + '   ' + str(self.colider.x))
+        #pygame.display.set_caption('x: ' + str(x_input) + '     y: ' + str(y_input) + '   ' + str(self.colider.x) + '   ' + str(self.colider.x))
 
