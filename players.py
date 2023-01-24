@@ -1,9 +1,15 @@
-import pygame
-import math
-from settings import *
-
+##############################################################################################
+    #       #       #       #       #       #   ######  #       #####  #     # ####### ######    
+import pygame   #       #       #       #       #     # #      #     #  #   #  #       #     #
+import math #       #       #       #       #   ######  #      #######   # #   ####### #####
+from settings import *  #       #       #       #       #      #     #    #    #       #    #
+    #       #       #       #       #       #   #       ###### #     #    #    ####### #     #
+##############################################################################################
 
 class Player (pygame.sprite.Sprite):
+#####################################################################################################################################################################################################
+#   INITIALIZATION OF THE PLAYER CLASS - THE PLAYER CLASS IS USED FOR BOTH PLAYERS - PLAYERS CAN BE TOLD APART BY THE 'self.NUMBER' CONSTANT SET AT DEFINITION
+#####################################################################################################################################################################################################
     def __init__(self, pos, number, groups):
         super().__init__(groups)
         
@@ -17,10 +23,9 @@ class Player (pygame.sprite.Sprite):
         
         #GETTING THE COLIDER AND THE RECT TO RENDER THE IMAGES ON
         self.rect = self.img_idle[self.NUMBER].get_rect(topleft = (pos[0]-TILE_SIZE, pos[1]-TILE_SIZE))
-        self.colider = self.rect.copy()
-        self.colider.width -= TILE_SIZE*2
-        self.colider.height -= TILE_SIZE*2
-        self.colider.topleft = pos
+        self.rect.width -= TILE_SIZE*2
+        self.rect.height -= TILE_SIZE*2
+        self.rect.topleft = pos
 
         #AMOUNT OF FRAMES, BEFORE THE ATTACK IS EXECUTED AFTER CHARGING
         self.CHARGE_DURATION = 15
@@ -37,23 +42,33 @@ class Player (pygame.sprite.Sprite):
         #PLAYER SPEED (pixels per frame)
         self.SPEED = 4
 
-        #THE FACING DIRECTION (left, right, up, down)
-        self.facing = 'left'
+        #THE ANGLE FOR THE FACING DIRECTION in degrees
+        self.angle = 0
 
 #####################################################################################################################################################################################################
-
-    #CUSTOM DRAW FUNCTION
+#   CUSTOM DRAW FUNCTION, USED TO DECIDE WHAT SURF TO BLIT AT WHAT ANGLE
+#####################################################################################################################################################################################################
     def custom_draw(self, level):
-        #updating the rect position to the position of the colider before rendering
-        self.rect.center = self.colider.center
+        #choosing the image to be rendered based on the state of the player (so far, only blitting the idle surf, regardless of anything)
+        chosen_image = self.img_idle[self.NUMBER].copy()
 
-        #so far, only blitting the idle surf, regardless of anything
-        pygame.Surface.blit( level.display_surface, self.img_idle[self.NUMBER], self.rect)
+        #rotate the image using the player.angle
+        chosen_image = pygame.transform.rotate(chosen_image, self.angle)
+
+        #make a new rect to render the rotated image on
+        rotated_rect = chosen_image.get_rect(center = self.rect.center)
+
+        #drawing the image at the angle
+        pygame.Surface.blit( level.display_surface, chosen_image, rotated_rect)
         
-        #THIS IS HERE ONLY TO DEBUG THE HITBOX OF THE PLAYER
-        #pygame.draw.rect(level.display_surface, (255,255,0), self.rect, 3)
-        pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.colider, 3)
+        #IMAGE FRAME DEBUG
+        pygame.draw.rect(level.display_surface, (255,255,0), rotated_rect, 3)
+        
+        #HITBOX DEBUG
+        pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.rect, 3)
 
+#####################################################################################################################################################################################################
+#   MOVEMENT FUNCTION FOR THE PLAYER USED IN THE MAIN UPDATE FUNCTION
 #####################################################################################################################################################################################################
     def movement(self, level):
         x_input = 0
@@ -77,6 +92,14 @@ class Player (pygame.sprite.Sprite):
         if (level.pressed_keys[pygame.K_d] and self.NUMBER == 1) or (level.pressed_keys[pygame.K_RIGHT] and self.NUMBER == 2):
             x_input += 1;
 
+        #find the angle of the player for use in the draw function (the angle stays the same on no input to maintaing the facing direction when the player stops)
+        if x_input != 0 or y_input != 0:
+            last_angle = self.angle
+            self.angle = math.degrees(math.atan2(x_input, y_input))
+
+            if self.angle < 0:      
+                self.angle += 360
+
         #diagonal movement
         if y_input != 0 and x_input != 0:
             diagonal = math.sqrt(self.SPEED*self.SPEED/2)
@@ -91,15 +114,12 @@ class Player (pygame.sprite.Sprite):
 
             
         #applying the directional vector onto the players position
-        self.colider.x += x_input
-        self.colider.y += y_input
+        self.rect.x += x_input
+        self.rect.y += y_input
 
-
-    #UPDATE FUNCTION, HANDLING INPUT AND PHYSICS
+#####################################################################################################################################################################################################
+#   MAIN UPDATE FUNCTION OF THE PLAYER, USED TO CALL ALL THE MOVEMENT AND PHYSICS FUNCTIONS, AS WELL AS TO HANDLE SOME LOGIC AMONG THEM
+#####################################################################################################################################################################################################
     def update(self, level):
 
         self.movement(level)
-
-        #debugging
-        #pygame.display.set_caption('x: ' + str(x_input) + '     y: ' + str(y_input) + '   ' + str(self.colider.x) + '   ' + str(self.colider.x))
-
