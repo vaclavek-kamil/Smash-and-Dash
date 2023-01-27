@@ -96,8 +96,6 @@ class Player (pygame.sprite.Sprite):
         #ATTACK HIT DETECTION
         elif self.attack_progress > self.CHARGE_DURATION:
             self.attack_progress += 1
-            
-            print(str(self.angle) + '   ' + str(self.attack_progress))
 
             if self.angle == 0:
                 offset_x = 0
@@ -133,8 +131,6 @@ class Player (pygame.sprite.Sprite):
             
             offset_x = round(offset_x)
             offset_y = round(offset_y)
-            
-            print(str(offset_x) + '   ' + str(offset_y))
 
             self.attack_hitbox = pygame.Rect(self.rect.x + offset_x, self.rect.y + offset_y, self.rect.width, self.rect.height)
             
