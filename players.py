@@ -48,7 +48,7 @@ class Player (pygame.sprite.Sprite):
         self.DMG = 20
 
         #PLAYER SPEED (pixels per frame)
-        self.SPEED = 4
+        self.SPEED = 3
 
         #THE ANGLE FOR THE FACING DIRECTION in degrees
         self.angle = 0
@@ -58,7 +58,14 @@ class Player (pygame.sprite.Sprite):
 #####################################################################################################################################################################################################
     def custom_draw(self, level):
         #choosing the image to be rendered based on the state of the player (so far, only blitting the idle surf, regardless of anything)
-        chosen_image = self.img_idle[self.NUMBER].copy()
+        if self.attack_progress == 0:
+            chosen_image = self.img_idle[self.NUMBER].copy()
+
+        elif self.attack_progress <= self.CHARGE_DURATION:
+            chosen_image = self.img_charge[self.NUMBER].copy()
+
+        else:
+            chosen_image = self.img_hit[self.NUMBER].copy()
 
         #rotate the image using the player.angle
         chosen_image = pygame.transform.rotate(chosen_image, self.angle)
@@ -73,11 +80,28 @@ class Player (pygame.sprite.Sprite):
         #pygame.draw.rect(level.display_surface, (255,255,0), rotated_rect, 3)
         
         #HITBOX DEBUG
-        pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.rect, 3)
+        #pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.rect, 3)
 
         #Attack hitbox debug
+        #if self.attack_hitbox != None:
+        #   pygame.draw.rect(level.display_surface, (255,255,0), self.attack_hitbox, 3)
+
+
+#####################################################################################################################################################################################################
+#   FUNCTION USED TO DETECT WHEN ONE PLAYER HITS THE OTHER
+#####################################################################################################################################################################################################
+    def hit_detect(self, level):
         if self.attack_hitbox != None:
-            pygame.draw.rect(level.display_surface, (255,255,0), self.attack_hitbox, 3)
+            for sprite in level.player_sprites:
+                if sprite.NUMBER != self.NUMBER:
+                    if self.attack_hitbox.colliderect(sprite.rect):
+                        #DAMAGING THE ENEMY PLAYER ON HIT
+                        sprite.hp -= self.DMG
+                        self.attack_hitbox = None
+                        print('player ' + str(sprite.NUMBER) + ' hp: ' + str(sprite.hp))
+                        return True
+                    
+        return False
 
 #####################################################################################################################################################################################################
 #   ATTACK FUNCTION FOR THE PLAYER USED IN THE MAIN UPDATE FUNCTION
@@ -93,7 +117,7 @@ class Player (pygame.sprite.Sprite):
             self.attack_progress += 1
             return True
 
-        #ATTACK HIT DETECTION
+        #ATTACK HITBOX
         elif self.attack_progress > self.CHARGE_DURATION:
             self.attack_progress += 1
 
@@ -134,16 +158,15 @@ class Player (pygame.sprite.Sprite):
 
             self.attack_hitbox = pygame.Rect(self.rect.x + offset_x, self.rect.y + offset_y, self.rect.width, self.rect.height)
             
+
             #end the attack
-            if self.attack_progress > 2*self.CHARGE_DURATION:
+            if self.attack_progress > 2*self.CHARGE_DURATION or self.hit_detect(level):
                 self.attack_progress = 0
                 self.attack_hitbox = None
 
+            return True
 
-
-        
-
-        
+        return False
 
 #####################################################################################################################################################################################################
 #   MOVEMENT FUNCTION FOR THE PLAYER USED IN THE MAIN UPDATE FUNCTION
@@ -202,3 +225,4 @@ class Player (pygame.sprite.Sprite):
 
         self.movement(level)
         self.attack(level)
+       
