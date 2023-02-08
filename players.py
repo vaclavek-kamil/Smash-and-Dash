@@ -3,9 +3,10 @@
 import pygame   #       #       #       #       #     # #      #     #  #   #  #       #     #
 import math #       #       #       #       #   ######  #      #######   # #   ####### #####
 from settings import *  #       #       #       #       #      #     #    #    #       #    #
-    #       #       #       #       #       #   #       ###### #     #    #    ####### #     #
+from effects import *       #       #       #   #       ###### #     #    #    ####### #     #
 ##############################################################################################
 
+            
 class Player (pygame.sprite.Sprite):
 #####################################################################################################################################################################################################
 #   INITIALIZATION OF THE PLAYER CLASS - THE PLAYER CLASS IS USED FOR BOTH PLAYERS - PLAYERS CAN BE TOLD APART BY THE 'self.NUMBER' CONSTANT SET AT DEFINITION
@@ -26,6 +27,8 @@ class Player (pygame.sprite.Sprite):
         self.rect.width -= TILE_SIZE*2
         self.rect.height -= TILE_SIZE*2
         self.rect.topleft = pos
+
+        #rect for the attack fumction
         self.attack_hitbox = None
 
         #AMOUNT OF FRAMES, BEFORE THE ATTACK IS EXECUTED AFTER CHARGING
@@ -95,10 +98,17 @@ class Player (pygame.sprite.Sprite):
             for sprite in level.player_sprites:
                 if sprite.NUMBER != self.NUMBER:
                     if self.attack_hitbox.colliderect(sprite.rect):
-                        #DAMAGING THE ENEMY PLAYER ON HIT
+                        
+                        #DAMAGING THE ENEMY PLAYER ON HIT (only on the first frame of the attack)
                         sprite.hp -= self.DMG
-                        self.attack_hitbox = None
+                        
+                        #creating an instance of a splash effect on hit
+                        Splash(sprite.rect.center, level.effects_sprites)
+                        
+
+                        #debug for the damage done
                         print('player ' + str(sprite.NUMBER) + ' hp: ' + str(sprite.hp))
+                        
                         return True
                     
         return False
@@ -158,11 +168,13 @@ class Player (pygame.sprite.Sprite):
 
             self.attack_hitbox = pygame.Rect(self.rect.x + offset_x, self.rect.y + offset_y, self.rect.width, self.rect.height)
             
+            #calling the hit detection function
+            if self.attack_progress == self.CHARGE_DURATION + 2:
+                self.hit_detect(level)
 
             #end the attack
-            if self.attack_progress > 2*self.CHARGE_DURATION or self.hit_detect(level):
+            if self.attack_progress > 2*self.CHARGE_DURATION:
                 self.attack_progress = 0
-                self.attack_hitbox = None
 
             return True
 

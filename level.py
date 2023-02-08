@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from tiles import *
 from players import *
+from effects import *
 
 class Level:
     def __init__(self):
@@ -12,6 +13,7 @@ class Level:
         self.floor_sprites = pygame.sprite.Group()
         self.obstacles_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
+        self.effects_sprites = pygame.sprite.Group()
 
         #sprite setup
         self.create_map()
@@ -45,10 +47,14 @@ class Level:
 
         #update the game objects
         self.player_sprites.update(self)
+        self.effects_sprites.update()
 
         #draw the game objects 
         self.floor_sprites.draw(self.display_surface)
         self.obstacles_sprites.draw(self.display_surface)
+
         for sprite in self.player_sprites:
             sprite.custom_draw(self)
+
+        self.effects_sprites.draw(self.display_surface)
 
