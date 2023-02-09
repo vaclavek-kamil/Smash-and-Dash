@@ -107,7 +107,7 @@ class Player (pygame.sprite.Sprite):
                         
 
                         #debug for the damage done
-                        print('player ' + str(sprite.NUMBER) + ' hp: ' + str(sprite.hp))
+                        #print('player ' + str(sprite.NUMBER) + ' hp: ' + str(sprite.hp))
                         
                         return True
                     
@@ -225,7 +225,21 @@ class Player (pygame.sprite.Sprite):
             y_input *= self.SPEED
             x_input *= self.SPEED
 
+        #restricting the player movement when attacking 
+        if self.attack_progress > 0 and self.attack_progress <= self.CHARGE_DURATION:
+            y_input = round(y_input * 0.5)
+            x_input = round(x_input * 0.5)
+
+        elif self.attack_progress > self.CHARGE_DURATION:
+            y_input = 0
+            x_input = 0
             
+        #CHECKING FOR COLISIONS WITH WALLS WILL BE HERE#
+        #                                              #
+        #                                              #
+        #                                              #
+        ################################################
+
         #applying the directional vector onto the players position
         self.rect.x += x_input
         self.rect.y += y_input
