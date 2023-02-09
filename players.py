@@ -21,6 +21,7 @@ class Player (pygame.sprite.Sprite):
         self.img_idle = [None, pygame.image.load('art/players/player1/idle.png'), pygame.image.load('art/players/player2/idle.png')]
         self.img_charge = [None, pygame.image.load('art/players/player1/charge.png'), pygame.image.load('art/players/player2/charge.png')]
         self.img_hit = [None, pygame.image.load('art/players/player1/hit.png'), pygame.image.load('art/players/player2/hit.png')]
+        self.img_dodge = [None, pygame.image.load('art/players/player1/dodge.png'), pygame.image.load('art/players/player2/dodge.png')]
         
         #GETTING THE COLIDER AND THE RECT TO RENDER THE IMAGES ON
         self.rect = self.img_idle[self.NUMBER].get_rect(topleft = (pos[0]-TILE_SIZE, pos[1]-TILE_SIZE))
@@ -35,7 +36,15 @@ class Player (pygame.sprite.Sprite):
         self.CHARGE_DURATION = 20
 
         #THE AMOUNT OF FRAME A DODGE LAST, MAKING THE PLAYER IMUNE TO DAMAGE (IGNORES HITS)
-        self.DODGE_DURATION = 25
+        self.DODGE_DURATION = 15
+
+        #player cant dodge for a while after dodging
+        self.dodge_cooldown = 0
+        self.DODGE_COOLDOWN = 40
+
+        self.DODGE_SPEED_MULTIPLIER = 2
+        #variable for the progress of a dodge
+        self.dodge_progress = 0
 
         #THE AMOUNT OF PIXELS AN ATTACK REACHES
         self.ATTACK_RANGE = 40
@@ -61,7 +70,10 @@ class Player (pygame.sprite.Sprite):
 #####################################################################################################################################################################################################
     def custom_draw(self, level):
         #choosing the image to be rendered based on the state of the player (so far, only blitting the idle surf, regardless of anything)
-        if self.attack_progress == 0:
+        if self.dodge_progress > 0:
+            chosen_image = self.img_dodge[self.NUMBER].copy()
+
+        elif self.attack_progress == 0:
             chosen_image = self.img_idle[self.NUMBER].copy()
 
         elif self.attack_progress <= self.CHARGE_DURATION:
@@ -83,11 +95,11 @@ class Player (pygame.sprite.Sprite):
         #pygame.draw.rect(level.display_surface, (255,255,0), rotated_rect, 3)
         
         #HITBOX DEBUG
-        #pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.rect, 3)
+        pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.rect, 3)
 
         #Attack hitbox debug
-        #if self.attack_hitbox != None:
-        #   pygame.draw.rect(level.display_surface, (255,255,0), self.attack_hitbox, 3)
+        if self.attack_hitbox != None:
+           pygame.draw.rect(level.display_surface, (255,255,0), self.attack_hitbox, 3)
 
 
 #####################################################################################################################################################################################################
@@ -100,10 +112,10 @@ class Player (pygame.sprite.Sprite):
                     if self.attack_hitbox.colliderect(sprite.rect):
                         
                         #DAMAGING THE ENEMY PLAYER ON HIT (only on the first frame of the attack)
-                        sprite.hp -= self.DMG
-                        
-                        #creating an instance of a splash effect on hit
-                        Splash(sprite.rect.center, level.effects_sprites)
+                        if sprite.dodge_progress == 0:
+                            sprite.hp -= self.DMG
+                            #creating an instance of a splash effect on hit
+                            Splash(sprite.rect.center, level.effects_sprites)
                         
 
                         #debug for the damage done
@@ -118,7 +130,7 @@ class Player (pygame.sprite.Sprite):
 #####################################################################################################################################################################################################
     def attack(self, level):
         #START THE ATTACK
-        if ((level.pressed_keys[pygame.K_g] and self.NUMBER == 1) or (level.pressed_keys[pygame.K_m] and self.NUMBER == 2)) and self.attack_progress == 0:
+        if ((level.pressed_keys[pygame.K_g] and self.NUMBER == 1) or (level.pressed_keys[pygame.K_n] and self.NUMBER == 2)) and self.attack_progress == 0:
             self.attack_progress += 1
             return True
 
@@ -175,6 +187,7 @@ class Player (pygame.sprite.Sprite):
             #end the attack
             if self.attack_progress > 2*self.CHARGE_DURATION:
                 self.attack_progress = 0
+                self.attack_hitbox = None
 
             return True
 
@@ -243,12 +256,100 @@ class Player (pygame.sprite.Sprite):
         #applying the directional vector onto the players position
         self.rect.x += x_input
         self.rect.y += y_input
+        
 
+#####################################################################################################################################################################################################
+#   FUNCTION FOR THE DODGE MECHANIC
+#####################################################################################################################################################################################################
+    def dodge(self, level):
+        #DODGE KEY PRESSED BOOL (JUST TO MAKE THE LATTER CONDITION EASIER TO READ)
+        if (level.pressed_keys[pygame.K_f] and self.NUMBER == 1) or (level.pressed_keys[pygame.K_m] and self.NUMBER == 2):
+            key_pressed = True 
+        else:
+            key_pressed = False
+
+
+        if (self.attack_progress == 0 and key_pressed and self.dodge_cooldown == 0) or self.dodge_progress > 0:
+            
+            if self.angle == 0:
+                x_input = 0
+                y_input = 1
+
+            elif self.angle == 45:
+                x_input = 1
+                y_input = 1
+
+            elif self.angle == 90:
+                x_input = 1
+                y_input = 0
+
+            elif self.angle == 135:
+                x_input = 1
+                y_input = -1
+
+            elif self.angle == 180:
+                x_input = 0
+                y_input = -1
+
+            elif self.angle == 225:
+                x_input = -1
+                y_input = -1
+            
+            elif self.angle == 270:
+                x_input = -1
+                y_input = 0
+
+            elif self.angle == 315:
+                x_input = -1
+                y_input = 1
+            
+
+
+            #Aplying the dodge speed multiplier
+            x_input *= self.DODGE_SPEED_MULTIPLIER #* (1/(self.DODGE_DURATION - self.dodge_progress + 1))
+            y_input *= self.DODGE_SPEED_MULTIPLIER #* (1/(self.DODGE_DURATION - self.dodge_progress + 1))
+
+
+            #diagonal movement
+            if y_input != 0 and x_input != 0:
+                diagonal = math.sqrt(self.SPEED*self.SPEED/2)
+            
+                x_input *= round(diagonal)
+                y_input *= round(diagonal)
+
+            #Multiplying the input by the player speed to turn it into a directional vector
+            else:
+                y_input *= self.SPEED
+                x_input *= self.SPEED
+
+            
+
+            #aplying the dodge movement
+            self.rect.x += x_input
+            self.rect.y += y_input
+
+
+
+            #dodge progress logic
+            self.dodge_progress += 1
+
+            if self.dodge_progress > self.DODGE_DURATION:
+                self.dodge_progress = 0
+                self.dodge_cooldown = self.DODGE_COOLDOWN
+
+
+            return True
+
+        #letting the dodge cooldown pass by on no dodge
+        if self.dodge_cooldown > 0:
+            self.dodge_cooldown -= 1
+        return False
 #####################################################################################################################################################################################################
 #   MAIN UPDATE FUNCTION OF THE PLAYER, USED TO CALL ALL THE MOVEMENT AND PHYSICS FUNCTIONS, AS WELL AS TO HANDLE SOME LOGIC AMONG THEM
 #####################################################################################################################################################################################################
     def update(self, level):
 
-        self.movement(level)
-        self.attack(level)
+        if self.dodge(level) == False:
+            self.movement(level)
+            self.attack(level)
        
