@@ -54,7 +54,8 @@ class Player (pygame.sprite.Sprite):
         self.attack_progress = 0
 
         #HEALTH POINTS
-        self.hp = 100
+        self.MAX_HP = 100
+        self.hp = self.MAX_HP
 
         #PLAYER DAMAGE
         self.DMG = 20

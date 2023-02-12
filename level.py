@@ -3,6 +3,7 @@ from settings import *
 from tiles import *
 from players import *
 from effects import *
+from ui import *
 
 class Level:
     def __init__(self):
@@ -14,10 +15,15 @@ class Level:
         self.obstacles_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
         self.effects_sprites = pygame.sprite.Group()
+        self.ui_sprites = pygame.sprite.Group()
 
         #sprite setup
         self.create_map()
         self.pressed_keys = pygame.key.get_pressed()
+
+        #ui setup
+        Healthbars(self.ui_sprites)
+
 
 
     def create_map(self):
@@ -58,3 +64,5 @@ class Level:
 
         self.effects_sprites.draw(self.display_surface)
 
+        for sprite in self.ui_sprites:
+            sprite.custom_draw(self)

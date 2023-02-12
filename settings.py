@@ -4,7 +4,7 @@ import sys
 #Framarate of the game
 FPS = 60
 
-SCREEN_SIZE = WIDTH, HEIGTH = 1080, 720
+SCREEN_SIZE = WIDTH, HEIGTH = 20*32, 20*32
 TILE_SIZE = 32
 
 WORLD_MAP = [
