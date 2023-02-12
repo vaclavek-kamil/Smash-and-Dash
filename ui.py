@@ -40,4 +40,23 @@ class Healthbars (pygame.sprite.Sprite):
 
 
             
-            
+class Staminabars (pygame.sprite.Sprite):
+#####################################################################################################################################################################################################
+#   INITIALIZATION OF THE STAMINABAR CLASS
+######################################################################################################################################################################################################
+    def __init__(self, groups):
+        super().__init__(groups)
+        self.THICKNESS = round(TILE_SIZE / 5)
+        self.COLOR = (199, 255, 255)
+        self.states = [None, None, None]
+
+    def custom_draw(self, level):
+
+        for sprite in level.player_sprites:
+            self.states[sprite.NUMBER] = sprite.attack_cooldown/sprite.ATTACK_COOLDOWN
+
+            if self.states[sprite.NUMBER] > 0:
+                line_start = (sprite.rect.x, sprite.rect.y - (TILE_SIZE/2))
+                line_end = (sprite.rect.x + (TILE_SIZE * self.states[sprite.NUMBER]), sprite.rect.y - (TILE_SIZE/2))
+
+                pygame.draw.line(level.display_surface, self.COLOR, line_start, line_end, self.THICKNESS)

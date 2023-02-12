@@ -23,6 +23,7 @@ class Level:
 
         #ui setup
         Healthbars(self.ui_sprites)
+        Staminabars(self.ui_sprites)
 
 
 
@@ -59,10 +60,10 @@ class Level:
         self.floor_sprites.draw(self.display_surface)
         self.obstacles_sprites.draw(self.display_surface)
 
+        for sprite in self.ui_sprites:
+            sprite.custom_draw(self)
+
         for sprite in self.player_sprites:
             sprite.custom_draw(self)
 
         self.effects_sprites.draw(self.display_surface)
-
-        for sprite in self.ui_sprites:
-            sprite.custom_draw(self)
