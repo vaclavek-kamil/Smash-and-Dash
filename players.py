@@ -29,36 +29,27 @@ class Player (pygame.sprite.Sprite):
         self.rect.height -= TILE_SIZE*2
         self.rect.topleft = pos
 
-        #rect for the attack fumction
-        self.attack_hitbox = None
-
-        #AMOUNT OF FRAMES, BEFORE THE ATTACK IS EXECUTED AFTER CHARGING
-        self.CHARGE_DURATION = 20
-
-        #THE AMOUNT OF FRAME A DODGE LAST, MAKING THE PLAYER IMUNE TO DAMAGE (IGNORES HITS)
-        self.DODGE_DURATION = 15
-
-        #player cant dodge for a while after dodging
-        self.dodge_cooldown = 0
-        self.DODGE_COOLDOWN = 40
-
-        self.DODGE_SPEED_MULTIPLIER = 2
-        #variable for the progress of a dodge
-        self.dodge_progress = 0
-
-        #THE AMOUNT OF PIXELS AN ATTACK REACHES
-        self.ATTACK_RANGE = 40
-
         #ATTACK PROGRESS -  (0 - CHARGE_DURATION) = THE ATTACK IS CHARGING
         ##################  ((CHAGRE_DURATION + 1 - (2*CHARGE_DURATION)) = THE ATTACK HITBOX IS ACTIVE
         self.attack_progress = 0
+        self.attack_hitbox = None
+        self.CHARGE_DURATION = 20
+        self.ATTACK_RANGE = 40
+        self.DMG = 20
+        self.attack_cooldown = 0
+        self.ATTACK_COOLDOWN = 40
+
+        #THE AMOUNT OF FRAME A DODGE LAST, MAKING THE PLAYER IMUNE TO DAMAGE (IGNORES HITS)
+        self.DODGE_DURATION = 15
+        self.dodge_cooldown = 0
+        self.DODGE_COOLDOWN = 40
+        self.DODGE_SPEED_MULTIPLIER = 2
+        self.dodge_progress = 0
+
 
         #HEALTH POINTS
         self.MAX_HP = 100
         self.hp = self.MAX_HP
-
-        #PLAYER DAMAGE
-        self.DMG = 20
 
         #PLAYER SPEED (pixels per frame)
         self.SPEED = 3
@@ -103,6 +94,7 @@ class Player (pygame.sprite.Sprite):
            pygame.draw.rect(level.display_surface, (255,255,0), self.attack_hitbox, 3)
 
 
+
 #####################################################################################################################################################################################################
 #   FUNCTION USED TO DETECT WHEN ONE PLAYER HITS THE OTHER
 #####################################################################################################################################################################################################
@@ -131,7 +123,7 @@ class Player (pygame.sprite.Sprite):
 #####################################################################################################################################################################################################
     def attack(self, level):
         #START THE ATTACK
-        if ((level.pressed_keys[pygame.K_g] and self.NUMBER == 1) or (level.pressed_keys[pygame.K_n] and self.NUMBER == 2)) and self.attack_progress == 0:
+        if ((level.pressed_keys[pygame.K_g] and self.NUMBER == 1 and self.attack_cooldown == 0) or (level.pressed_keys[pygame.K_n] and self.NUMBER == 2 and self.attack_cooldown == 0)) and self.attack_progress == 0:
             self.attack_progress += 1
             return True
 
@@ -189,9 +181,12 @@ class Player (pygame.sprite.Sprite):
             if self.attack_progress > 2*self.CHARGE_DURATION:
                 self.attack_progress = 0
                 self.attack_hitbox = None
+                self.attack_cooldown = self.ATTACK_COOLDOWN
 
             return True
 
+        if self.attack_cooldown > 0:
+            self.attack_cooldown -= 1
         return False
 
 #####################################################################################################################################################################################################

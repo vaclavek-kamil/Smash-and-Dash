@@ -39,6 +39,5 @@ class Healthbars (pygame.sprite.Sprite):
             pygame.draw.line(level.display_surface, self.ORANGE, self.BAR2_START, ((self.BAR2_START[0] + ((self.players_hp[2] / MAX_HP) * self.BAR_SIZE)), self.BAR2_START[1]), self.THICKNESS)
 
 
-        
             
             
