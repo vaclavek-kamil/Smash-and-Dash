@@ -109,6 +109,11 @@ class Player (pygame.sprite.Sprite):
                             sprite.hp -= self.DMG
                             #creating an instance of a splash effect on hit
                             Splash(sprite.rect.center, level.effects_sprites)
+                            
+                            if sprite.hp <= 0:
+                                level.gameloop = False
+                                level.pause_state = 'end'
+                                
                         
 
                         #debug for the damage done

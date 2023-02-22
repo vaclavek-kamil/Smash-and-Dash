@@ -28,8 +28,9 @@ class Healthbars (pygame.sprite.Sprite):
         #getting the health amounts from the player sprites
         for sprite in level.player_sprites:
             self.players_hp[sprite.NUMBER] = sprite.hp
+            MAX_HP = sprite.MAX_HP
             
-        MAX_HP = sprite.MAX_HP
+        
 
         #Drawing the colorful bars (their size is calculated from the player HP) on when the player still has some HP left
         if self.players_hp[1] > 0:
