@@ -94,7 +94,30 @@ class Player (pygame.sprite.Sprite):
         #   pygame.draw.rect(level.display_surface, (255,255,0), self.attack_hitbox, 3)
 
 
+#########################################################################################################################################################
+#   MOVING THE PLAYER WHILE CHECKING FOR COLLISIONS WITH WALL SPRITES
+#########################################################################################################################################################
+    def move_and_colide(self, x, y, level):    
+        #HORIZONTAL
+        if x != 0:
+            self.rect.x += x
+            for obstacle in level.obstacles_sprites:
+                if self.rect.colliderect(obstacle) and obstacle != self:
+                    if x > 0:
+                        self.rect.right = obstacle.rect.left
+                    elif x < 0:
+                        self.rect.left = obstacle.rect.right
 
+        #VERTICAL
+        if y != 0:
+            self.rect.y += y
+            for obstacle in level.obstacles_sprites:
+                if self.rect.colliderect(obstacle) and obstacle != self:
+                    if y > 0:
+                        self.rect.bottom = obstacle.rect.top
+                    elif y < 0:
+                        self.rect.top = obstacle.rect.bottom
+        
 #####################################################################################################################################################################################################
 #   FUNCTION USED TO DETECT WHEN ONE PLAYER HITS THE OTHER
 #####################################################################################################################################################################################################
@@ -255,10 +278,8 @@ class Player (pygame.sprite.Sprite):
         ################################################
 
         #applying the directional vector onto the players position
-        self.rect.x += x_input
-        self.rect.y += y_input
+        self.move_and_colide(x_input, y_input, level)
         
-
 #####################################################################################################################################################################################################
 #   FUNCTION FOR THE DODGE MECHANIC
 #####################################################################################################################################################################################################
@@ -326,10 +347,8 @@ class Player (pygame.sprite.Sprite):
             
 
             #aplying the dodge movement
-            self.rect.x += x_input
-            self.rect.y += y_input
-
-
+            self.move_and_colide(x_input, y_input, level)
+        
 
             #dodge progress logic
             self.dodge_progress += 1

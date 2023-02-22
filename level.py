@@ -13,6 +13,7 @@ class Level:
 
         #sprite group setup
         self.floor_sprites = pygame.sprite.Group()
+        self.wall_sprites = pygame.sprite.Group()
         self.obstacles_sprites = pygame.sprite.Group()
         self.player_sprites = pygame.sprite.Group()
         self.effects_sprites = pygame.sprite.Group()
@@ -115,17 +116,17 @@ class Level:
                 y = row_index * TILE_SIZE
 
                 if col == 'f':
-                    Floor((x,y), [self.obstacles_sprites])
+                    Floor((x,y), [self.floor_sprites])
 
                 if col == 'w':
-                    Wall((x,y), [self.floor_sprites])
+                    Wall((x,y), [self.obstacles_sprites, self.wall_sprites])
 
                 if col == '1':
-                    Player((x,y),1, [self.player_sprites])
+                    Player((x,y),1, [self.player_sprites, self.obstacles_sprites])
                     Floor((x,y), [self.floor_sprites])
 
                 if col == '2':
-                    Player((x,y),2, [self.player_sprites])
+                    Player((x,y),2, [self.player_sprites, self.obstacles_sprites])
                     Floor((x,y), [self.floor_sprites])
     
 #reset all sprites for a new game
@@ -135,6 +136,7 @@ class Level:
         self.player_sprites.empty()
         self.effects_sprites.empty()
         self.obstacles_sprites.empty()
+        self.wall_sprites.empty()
         
         Healthbars(self.ui_sprites)
         Staminabars(self.ui_sprites)
@@ -165,7 +167,7 @@ class Level:
 
         #draw the game objects 
         self.floor_sprites.draw(self.display_surface)
-        self.obstacles_sprites.draw(self.display_surface)
+        self.wall_sprites.draw(self.display_surface)
 
         for sprite in self.ui_sprites:
             sprite.custom_draw(self)
