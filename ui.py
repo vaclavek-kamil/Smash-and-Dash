@@ -48,16 +48,28 @@ class Staminabars (pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
         self.THICKNESS = round(TILE_SIZE / 5)
-        self.COLOR = (199, 255, 255)
+        self.ATTACK_COOLDOWN_COLOR = (255, 25, 5)
+        self.DODGE_COOLDOWN_COLOR = (25, 255, 5)
         self.states = [None, None, None]
 
     def custom_draw(self, level):
-
+        
+        #attack cooldown bar
         for sprite in level.player_sprites:
             self.states[sprite.NUMBER] = sprite.attack_cooldown/sprite.ATTACK_COOLDOWN
 
             if self.states[sprite.NUMBER] > 0:
-                line_start = (sprite.rect.x, sprite.rect.y - (TILE_SIZE/2))
-                line_end = (sprite.rect.x + (TILE_SIZE * self.states[sprite.NUMBER]), sprite.rect.y - (TILE_SIZE/2))
+                line_start = (sprite.rect.x, sprite.rect.y - (TILE_SIZE/3))
+                line_end = (sprite.rect.x + (TILE_SIZE * self.states[sprite.NUMBER]), sprite.rect.y - (TILE_SIZE/3))
 
-                pygame.draw.line(level.display_surface, self.COLOR, line_start, line_end, self.THICKNESS)
+                pygame.draw.line(level.display_surface, self.ATTACK_COOLDOWN_COLOR, line_start, line_end, self.THICKNESS)
+
+        #dodge cooldown bar
+        for sprite in level.player_sprites:
+            self.states[sprite.NUMBER] = sprite.dodge_cooldown/sprite.DODGE_COOLDOWN
+
+            if self.states[sprite.NUMBER] > 0:
+                line_start = (sprite.rect.x, sprite.rect.y - (TILE_SIZE/3) - self.THICKNESS)
+                line_end = (sprite.rect.x + (TILE_SIZE * self.states[sprite.NUMBER]), sprite.rect.y - (TILE_SIZE/3) - self.THICKNESS)
+
+                pygame.draw.line(level.display_surface, self.DODGE_COOLDOWN_COLOR, line_start, line_end, self.THICKNESS)

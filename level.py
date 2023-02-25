@@ -22,6 +22,18 @@ class Level:
         #sprite setup
         self.pressed_keys = pygame.key.get_pressed()
 
+        #start screen tips
+        start_screen_font = pygame.font.Font('freesansbold.ttf', 32)
+        self.START_SCREEN_TEXT_1 = start_screen_font.render('Player 1:          WASD - move          G - Attack          F - Dodge', True, (255,255,255))
+        self.START_SCREEN_TEXT_2 = start_screen_font.render('Player 2:        Arrows - move          N - Attack          M - Dodge', True, (255,255,255))
+
+        self.start_text_rect1 = self.START_SCREEN_TEXT_1.get_rect()
+        self.start_text_rect1.x = ( WIDTH / 2 ) - ( self.start_text_rect1.width / 2 )
+        self.start_text_rect1.y = ( HEIGTH / 4 ) - ( self.start_text_rect1.height / 2 )
+        
+        self.start_text_rect2 = self.start_text_rect1.copy()
+        self.start_text_rect2.y += HEIGTH/2
+
         #endscreen text setup
         PURPLE = (127, 0, 255)
         ORANGE = (255, 127, 0)
@@ -37,13 +49,13 @@ class Level:
         self.END_TEXT_TIE_BG = end_text_font.render('Tie!', True, (20,20,20))
         
         self.end_text_rect = self.END_TEXT_P1_BG.get_rect()
-        self.end_text_rect.center = (WIDTH/2, HEIGTH/2)
+        self.end_text_rect.center = (WIDTH / 2, HEIGTH / 2)
         self.end_text_rect_offset = self.end_text_rect.copy()
         self.end_text_rect_offset.x += 1
         self.end_text_rect_offset.y += 1
 
         self.end_text_tie_rect = self.END_TEXT_TIE.get_rect()
-        self.end_text_tie_rect.center = (WIDTH/2, HEIGTH/2)
+        self.end_text_tie_rect.center = (WIDTH / 2, HEIGTH / 2)
         self.end_text_tie_rect_offset = self.end_text_tie_rect.copy()
         self.end_text_tie_rect_offset.x += 1
         self.end_text_tie_rect_offset.y += 1
@@ -54,7 +66,7 @@ class Level:
         self.continue_text_rect = self.CONTINUE_TEXT.get_rect()
         self.continue_text_rect.top = self.end_text_rect.bottom
         self.continue_text_rect.y += 10
-        self.continue_text_rect.x = WIDTH/2 - self.continue_text_rect.width/2 
+        self.continue_text_rect.x = ( WIDTH / 2 ) - ( self.continue_text_rect.width / 2 ) 
 
         self.continue_text_rect_offset = self.continue_text_rect.copy()
         self.continue_text_rect_offset.x += 1
@@ -66,13 +78,13 @@ class Level:
         self.MAP3 = pygame.image.load('art/maps/map3.png')
         
         self.map2_rect = self.MAP1.get_rect()
-        self.map2_rect.center = (WIDTH/2, HEIGTH/2)
+        self.map2_rect.center = (WIDTH / 2, HEIGTH / 2)
 
         self.map1_rect = self.map2_rect.copy()
-        self.map1_rect.x -= (WIDTH/4)+(self.map1_rect.width/4)
+        self.map1_rect.x -= ( WIDTH / 4 ) + ( self.map1_rect.width / 4 )
         
         self.map3_rect = self.map2_rect.copy()
-        self.map3_rect.x += (WIDTH/4)+(self.map1_rect.width/4)
+        self.map3_rect.x += ( WIDTH / 4 ) + ( self.map1_rect.width / 4 )
         
         self.selected_map = 1
         self.selection_rect = self.map1_rect.copy()
@@ -109,8 +121,9 @@ class Level:
     
 #place sprites on the map
     def create_map(self, map):
-        for row_index, row in enumerate(WORLD_MAP[map]):
-            for col_index, col in enumerate(row):
+        for row_index, row in enumerate(WORLD_MAP[map]):        #2Dpole = [pole1,pole2,pole3]       x   x   x
+                                                                                            #       x   x   x
+            for col_index, col in enumerate(row):                                           #       x   x   x
 
                 x = col_index * TILE_SIZE
                 y = row_index * TILE_SIZE
@@ -211,6 +224,8 @@ class Level:
         self.display_surface.blit(self.MAP1, self.map1_rect)
         self.display_surface.blit(self.MAP2, self.map2_rect)
         self.display_surface.blit(self.MAP3, self.map3_rect)
+        self.display_surface.blit(self.START_SCREEN_TEXT_1, self.start_text_rect1)
+        self.display_surface.blit(self.START_SCREEN_TEXT_2, self.start_text_rect2)
 
         if pygame.mouse.get_pressed(3)[0] and selected_map != None:
             self.create_map(selected_map)

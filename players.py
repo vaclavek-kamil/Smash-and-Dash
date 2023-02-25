@@ -87,11 +87,11 @@ class Player (pygame.sprite.Sprite):
         #pygame.draw.rect(level.display_surface, (255,255,0), rotated_rect, 3)
         
         #HITBOX DEBUG
-        pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.rect, 3)
+        #pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.rect, 3)
 
         #Attack hitbox debug
-        if self.attack_hitbox != None:
-           pygame.draw.rect(level.display_surface, (255,255,0), self.attack_hitbox, 3)
+        #if self.attack_hitbox != None:
+        #    pygame.draw.rect(level.display_surface, (255,255,0), self.attack_hitbox, 3)
 
 
 #########################################################################################################################################################
