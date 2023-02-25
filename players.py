@@ -33,17 +33,17 @@ class Player (pygame.sprite.Sprite):
         ##################  ((CHAGRE_DURATION + 1 - (2*CHARGE_DURATION)) = THE ATTACK HITBOX IS ACTIVE
         self.attack_progress = 0
         self.attack_hitbox = None
-        self.CHARGE_DURATION = 20
+        self.CHARGE_DURATION = 15
         self.ATTACK_RANGE = 40
         self.DMG = 20
         self.attack_cooldown = 0
-        self.ATTACK_COOLDOWN = 40
+        self.ATTACK_COOLDOWN = 10
 
         #THE AMOUNT OF FRAME A DODGE LAST, MAKING THE PLAYER IMUNE TO DAMAGE (IGNORES HITS)
         self.DODGE_DURATION = 15
         self.dodge_cooldown = 0
-        self.DODGE_COOLDOWN = 40
-        self.DODGE_SPEED_MULTIPLIER = 2
+        self.DODGE_COOLDOWN = 50
+        self.DODGE_SPEED_MULTIPLIER = 4
         self.dodge_progress = 0
 
 
@@ -103,7 +103,7 @@ class Player (pygame.sprite.Sprite):
             self.rect.x += x
             for obstacle in level.obstacles_sprites:
                 #check for a collision with a valid sprite that IS NOT self and IS NOT a dodging player and IS NOT a player when self is dodging
-                if self.rect.colliderect(obstacle) and obstacle != self and not (type(obstacle) == Player and self.dodge_progress > 0) and not (type(obstacle) == Player and obstacle.dodge_progress > 0):
+                if self.rect.colliderect(obstacle) and obstacle != self:
                     #move the player back to the edge of the collision object on colision with it based on the players movement direction
                     if x > 0:
                         self.rect.right = obstacle.rect.left
@@ -115,7 +115,7 @@ class Player (pygame.sprite.Sprite):
             self.rect.y += y
             for obstacle in level.obstacles_sprites:
                 #check for a collision with a valid sprite that IS NOT self and IS NOT a dodging player and IS NOT a player when self is dodging
-                if self.rect.colliderect(obstacle) and obstacle != self and not (type(obstacle) == Player and self.dodge_progress > 0) and not (type(obstacle) == Player and obstacle.dodge_progress > 0):
+                if self.rect.colliderect(obstacle) and obstacle != self:
                     #move the player back to the edge of the collision object on colision with it based on the players movement direction
                     if y > 0:
                         self.rect.bottom = obstacle.rect.top
@@ -155,7 +155,7 @@ class Player (pygame.sprite.Sprite):
 #####################################################################################################################################################################################################
     def attack(self, level):
         #START THE ATTACK
-        if ((level.pressed_keys[pygame.K_g] and self.NUMBER == 1 and self.attack_cooldown == 0) or (level.pressed_keys[pygame.K_n] and self.NUMBER == 2 and self.attack_cooldown == 0)) and self.attack_progress == 0:
+        if ((level.pressed_keys[pygame.K_g] and self.NUMBER == 1 and self.attack_cooldown == 0) or (level.pressed_keys[pygame.K_n] and self.NUMBER == 2 and self.attack_cooldown == 0)) and self.attack_progress == 0 and self.dodge_progress == 0:
             self.attack_progress += 1
             return True
 
@@ -349,7 +349,10 @@ class Player (pygame.sprite.Sprite):
                 x_input *= self.SPEED
 
             
-
+            #gradually slowing the player down as the dodge progresses
+            x_input *= ( 1 - ( self.dodge_progress / self.DODGE_DURATION ) )
+            y_input *= ( 1 - ( self.dodge_progress / self.DODGE_DURATION ) )
+            
             #aplying the dodge movement
             self.move_and_colide(x_input, y_input, level)
         
@@ -375,5 +378,6 @@ class Player (pygame.sprite.Sprite):
 
         if self.dodge(level) == False:
             self.movement(level)
-            self.attack(level)
+
+        self.attack(level)
        
