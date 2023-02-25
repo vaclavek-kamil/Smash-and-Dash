@@ -33,17 +33,17 @@ class Player (pygame.sprite.Sprite):
         ##################  ((CHAGRE_DURATION + 1 - (2*CHARGE_DURATION)) = THE ATTACK HITBOX IS ACTIVE
         self.attack_progress = 0
         self.attack_hitbox = None
-        self.CHARGE_DURATION = 15
+        self.CHARGE_DURATION = 20
         self.ATTACK_RANGE = 40
         self.DMG = 20
         self.attack_cooldown = 0
-        self.ATTACK_COOLDOWN = 10
+        self.ATTACK_COOLDOWN = 25
 
         #THE AMOUNT OF FRAME A DODGE LAST, MAKING THE PLAYER IMUNE TO DAMAGE (IGNORES HITS)
-        self.DODGE_DURATION = 15
+        self.DODGE_DURATION = 30
         self.dodge_cooldown = 0
-        self.DODGE_COOLDOWN = 50
-        self.DODGE_SPEED_MULTIPLIER = 4
+        self.DODGE_COOLDOWN = 30
+        self.DODGE_SPEED_MULTIPLIER = 1.7
         self.dodge_progress = 0
 
 
@@ -128,11 +128,15 @@ class Player (pygame.sprite.Sprite):
     def hit_detect(self, level):
         if self.attack_hitbox != None:
             for sprite in level.player_sprites:
+                
+                #finding a player sprite with a number different than self (the other player)
                 if sprite.NUMBER != self.NUMBER:
+
+                    #looking for a colision of the attack and the enemy player
                     if self.attack_hitbox.colliderect(sprite.rect):
                         
-                        #DAMAGING THE ENEMY PLAYER ON HIT (only on the first frame of the attack)
-                        if sprite.dodge_progress == 0:
+                        #DAMAGING THE ENEMY PLAYER ON HIT (only on the first frame of the attack) IF THE PLAYER ISNT IN THE FIRST HALF OF THE DODGE
+                        if sprite.dodge_progress == 0 or sprite.dodge_progress > sprite.DODGE_DURATION / 2:
                             sprite.hp -= self.DMG
                             #creating an instance of a splash effect on hit
                             Splash(sprite.rect.center, level.effects_sprites)
@@ -203,6 +207,7 @@ class Player (pygame.sprite.Sprite):
             offset_x = round(offset_x)
             offset_y = round(offset_y)
 
+            #creating the attack hitbox at the desired position
             self.attack_hitbox = pygame.Rect(self.rect.x + offset_x, self.rect.y + offset_y, self.rect.width, self.rect.height)
             
             #calling the hit detection function
@@ -274,14 +279,8 @@ class Player (pygame.sprite.Sprite):
         elif self.attack_progress > self.CHARGE_DURATION:
             y_input = 0
             x_input = 0
-            
-        #CHECKING FOR COLISIONS WITH WALLS WILL BE HERE#
-        #                                              #
-        #                                              #
-        #                                              #
-        ################################################
 
-        #applying the directional vector onto the players position
+        #applying the directional vector onto the players position and checking for colisions
         self.move_and_colide(x_input, y_input, level)
         
 #####################################################################################################################################################################################################
@@ -294,7 +293,7 @@ class Player (pygame.sprite.Sprite):
         else:
             key_pressed = False
 
-
+        #Starting the dodge or continuing it
         if (self.attack_progress == 0 and key_pressed and self.dodge_cooldown == 0) or self.dodge_progress > 0:
             
             if self.angle == 0:
@@ -329,7 +328,9 @@ class Player (pygame.sprite.Sprite):
                 x_input = -1
                 y_input = 1
             
-
+            #gradually slowing the player down as the dodge progresses
+            x_input *= ( 1 - ( self.dodge_progress / self.DODGE_DURATION ) )
+            y_input *= ( 1 - ( self.dodge_progress / self.DODGE_DURATION ) )
 
             #Aplying the dodge speed multiplier
             x_input *= self.DODGE_SPEED_MULTIPLIER #* (1/(self.DODGE_DURATION - self.dodge_progress + 1))
@@ -340,18 +341,14 @@ class Player (pygame.sprite.Sprite):
             if y_input != 0 and x_input != 0:
                 diagonal = math.sqrt(self.SPEED*self.SPEED/2)
             
-                x_input *= round(diagonal)
-                y_input *= round(diagonal)
+                x_input = round(x_input * diagonal)
+                y_input = round(y_input * diagonal)
 
             #Multiplying the input by the player speed to turn it into a directional vector
             else:
                 y_input *= self.SPEED
                 x_input *= self.SPEED
 
-            
-            #gradually slowing the player down as the dodge progresses
-            x_input *= ( 1 - ( self.dodge_progress / self.DODGE_DURATION ) )
-            y_input *= ( 1 - ( self.dodge_progress / self.DODGE_DURATION ) )
             
             #aplying the dodge movement
             self.move_and_colide(x_input, y_input, level)

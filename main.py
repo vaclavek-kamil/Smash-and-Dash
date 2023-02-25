@@ -9,6 +9,9 @@ class Game:
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         self.clock = pygame.time.Clock()
         self.level = Level()
+        pygame.display.set_icon(pygame.image.load('art/icon/icon.png'))
+        pygame.display.set_caption('Smash and Dash')
+
 
     def run(self):
         while True:
