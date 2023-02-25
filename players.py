@@ -87,11 +87,11 @@ class Player (pygame.sprite.Sprite):
         #pygame.draw.rect(level.display_surface, (255,255,0), rotated_rect, 3)
         
         #HITBOX DEBUG
-        #pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.rect, 3)
+        pygame.draw.rect(level.display_surface, ((self.NUMBER-1)*255,(self.NUMBER-2)*-255,0), self.rect, 3)
 
         #Attack hitbox debug
-        #if self.attack_hitbox != None:
-        #   pygame.draw.rect(level.display_surface, (255,255,0), self.attack_hitbox, 3)
+        if self.attack_hitbox != None:
+           pygame.draw.rect(level.display_surface, (255,255,0), self.attack_hitbox, 3)
 
 
 #########################################################################################################################################################
@@ -102,7 +102,9 @@ class Player (pygame.sprite.Sprite):
         if x != 0:
             self.rect.x += x
             for obstacle in level.obstacles_sprites:
-                if self.rect.colliderect(obstacle) and obstacle != self:
+                #check for a collision with a valid sprite that IS NOT self and IS NOT a dodging player and IS NOT a player when self is dodging
+                if self.rect.colliderect(obstacle) and obstacle != self and not (type(obstacle) == Player and self.dodge_progress > 0) and not (type(obstacle) == Player and obstacle.dodge_progress > 0):
+                    #move the player back to the edge of the collision object on colision with it based on the players movement direction
                     if x > 0:
                         self.rect.right = obstacle.rect.left
                     elif x < 0:
@@ -112,7 +114,9 @@ class Player (pygame.sprite.Sprite):
         if y != 0:
             self.rect.y += y
             for obstacle in level.obstacles_sprites:
-                if self.rect.colliderect(obstacle) and obstacle != self:
+                #check for a collision with a valid sprite that IS NOT self and IS NOT a dodging player and IS NOT a player when self is dodging
+                if self.rect.colliderect(obstacle) and obstacle != self and not (type(obstacle) == Player and self.dodge_progress > 0) and not (type(obstacle) == Player and obstacle.dodge_progress > 0):
+                    #move the player back to the edge of the collision object on colision with it based on the players movement direction
                     if y > 0:
                         self.rect.bottom = obstacle.rect.top
                     elif y < 0:
