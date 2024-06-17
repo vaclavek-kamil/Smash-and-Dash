@@ -2,8 +2,6 @@
 
 Indie project made in python using the library Pygame
 
-The game was made using VSCode
-
 Versions:
 pygame 2.1.2 (SDL 2.0.18, Python 3.10.8)
 
